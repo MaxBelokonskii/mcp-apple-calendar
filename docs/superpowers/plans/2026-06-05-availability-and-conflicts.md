@@ -37,7 +37,7 @@
 - [ ] **Step 1: Создать и переключиться на ветку**
 
 ```bash
-cd /Users/maxbelokonskii/Desktop/workspace/pat/mcp-apple-calendar
+cd "$(git rev-parse --show-toplevel)"
 git checkout -b feature/availability-and-conflicts
 git branch --show-current
 ```
@@ -526,7 +526,7 @@ printf '%s\n' \
 '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
 '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"find_free_slots","arguments":{"start":"2026-06-07T09:00:00+03:00","end":"2026-06-07T22:00:00+03:00","durationMinutes":60}}}' | node dist/index.js 2>/dev/null | node -e "let s='';process.stdin.on('data',c=>s+=c);process.stdin.on('end',()=>{for(const l of s.split('\n')){if(!l.trim())continue;const m=JSON.parse(l);if(m.id===2)console.log(m.result.content[0].text)}})"
 ```
-Expected: текст со свободными слотами; видно, что окно 16:00–18:00 (Репетиция) исключено.
+Expected: текст со свободными слотами; видно, что окно занятого события исключено.
 
 - [ ] **Step 4: Commit**
 
@@ -614,10 +614,10 @@ Expected: компиляция без ошибок, все тесты зелён
 RESP=$(printf '%s\n' \
 '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"t","version":"1"}}}' \
 '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
-'{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"create_event","arguments":{"title":"Conflict probe","startDate":"2026-06-07T16:30:00+03:00","endDate":"2026-06-07T17:00:00+03:00","calendarId":"EB0E1A6E-693A-4741-8220-E688A634BC6D"}}}' | node dist/index.js 2>/dev/null)
+'{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"create_event","arguments":{"title":"Conflict probe","startDate":"2026-06-07T16:30:00+03:00","endDate":"2026-06-07T17:00:00+03:00","calendarId":"<calendarId>"}}}' | node dist/index.js 2>/dev/null)
 echo "$RESP" | node -e "let s='';process.stdin.on('data',c=>s+=c);process.stdin.on('end',()=>{for(const l of s.split('\n')){if(!l.trim())continue;const m=JSON.parse(l);if(m.id===2)console.log(m.result.content[0].text)}})"
 ```
-Expected: ответ `Created: ...` + блок `⚠️ Conflicts:` со строкой «Репетиция» (16:00–18:00). После проверки удалить пробное событие через `delete_event` по выведенному id.
+Expected: ответ `Created: ...` + блок `⚠️ Conflicts:` со списком пересекающихся событий. После проверки удалить пробное событие через `delete_event` по выведенному id.
 
 - [ ] **Step 6: Commit**
 

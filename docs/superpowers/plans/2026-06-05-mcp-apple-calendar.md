@@ -59,7 +59,7 @@
 - [ ] **Step 1: Инициализировать git и npm**
 
 ```bash
-cd /Users/maxbelokonskii/Desktop/workspace/pat/mcp-apple-calendar
+cd <repo>   # корень проекта
 git init
 npm init -y
 ```
