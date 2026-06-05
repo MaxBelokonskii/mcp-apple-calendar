@@ -10,7 +10,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "build:swift": "swift build -c release --package-path swift && mkdir -p bin && cp swift/.build/release/CalendarHelper bin/calendar-helper",
+    "build:swift": "cd swift && swift build -c release && cd .. && mkdir -p bin && cp swift/.build/release/CalendarHelper bin/calendar-helper",
     "build:ts": "tsc",
     "build": "npm run build:swift && npm run build:ts",
     "test": "vitest run",
