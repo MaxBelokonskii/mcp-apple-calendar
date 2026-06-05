@@ -1,0 +1,38 @@
+{
+  "name": "mcp-apple-calendar",
+  "version": "0.1.0",
+  "description": "MCP server for Apple Calendar (macOS) via EventKit",
+  "type": "module",
+  "bin": {
+    "mcp-apple-calendar": "dist/index.js"
+  },
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build:swift": "swift build -c release --package-path swift && mkdir -p bin && cp swift/.build/release/CalendarHelper bin/calendar-helper",
+    "build:ts": "tsc",
+    "build": "npm run build:swift && npm run build:ts",
+    "test": "vitest run",
+    "dev": "tsx src/index.ts"
+  },
+  "keywords": [
+    "mcp",
+    "apple",
+    "calendar",
+    "eventkit",
+    "macos"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.19",
+    "tsx": "^4.22.4",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
+  }
+}
