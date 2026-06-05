@@ -33,6 +33,27 @@ function errorResult(e: unknown) {
   };
 }
 
+async function conflictWarning(
+  call: (command: string, args?: Record<string, unknown>) => Promise<unknown>,
+  event: CalendarEvent
+): Promise<string> {
+  if (event.allDay || !event.start || !event.end) return "";
+  const targetStart = Date.parse(event.start);
+  const targetEnd = Date.parse(event.end);
+  if (Number.isNaN(targetStart) || Number.isNaN(targetEnd)) return "";
+  try {
+    const events = (await call("list-events", {
+      start: event.start,
+      end: event.end,
+    })) as CalendarEvent[];
+    const conflicts = findOverlapping(events, targetStart, targetEnd, event.id);
+    if (conflicts.length === 0) return "";
+    return `\n\n⚠️ Conflicts:\n${formatConflicts(conflicts)}`;
+  } catch {
+    return "";
+  }
+}
+
 export function registerTools(server: McpServer, binPath: string): void {
   const call = (command: string, args?: Record<string, unknown>) =>
     runHelper(binPath, command, args);
@@ -135,7 +156,8 @@ export function registerTools(server: McpServer, binPath: string): void {
     async (args) => {
       try {
         const data = (await call("create-event", args)) as CalendarEvent;
-        return textResult(`Created:\n${formatEvent(data)}`);
+        const warning = await conflictWarning(call, data);
+        return textResult(`Created:\n${formatEvent(data)}${warning}`);
       } catch (e) {
         return errorResult(e);
       }
@@ -152,7 +174,8 @@ export function registerTools(server: McpServer, binPath: string): void {
     async (args) => {
       try {
         const data = (await call("update-event", args)) as CalendarEvent;
-        return textResult(`Updated:\n${formatEvent(data)}`);
+        const warning = await conflictWarning(call, data);
+        return textResult(`Updated:\n${formatEvent(data)}${warning}`);
       } catch (e) {
         return errorResult(e);
       }
