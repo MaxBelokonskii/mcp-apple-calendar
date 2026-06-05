@@ -1,3 +1,5 @@
+import type { Interval } from "./availability.js";
+
 export interface CalendarEvent {
   id: string;
   title: string;
@@ -49,4 +51,28 @@ export function formatCalendars(cals: CalendarInfo[]): string {
         }`
     )
     .join("\n");
+}
+
+function isoLocal(ms: number): string {
+  // ISO в UTC; клиент сам интерпретирует. Достаточно для отображения.
+  return new Date(ms).toISOString();
+}
+
+export function formatFreeSlots(slots: Interval[]): string {
+  if (slots.length === 0) return "No free slots found in the given range.";
+  const lines = slots.map(
+    (s) =>
+      `• ${isoLocal(s.start)} → ${isoLocal(s.end)} (${Math.round(
+        (s.end - s.start) / 60000
+      )} min)`
+  );
+  return `${slots.length} free slot(s):\n${lines.join("\n")}`;
+}
+
+export function formatConflicts(events: CalendarEvent[]): string {
+  if (events.length === 0) return "No conflicts.";
+  const lines = events.map(
+    (e) => `• ${e.title} (${e.start} → ${e.end}) [${e.calendarTitle}] id: ${e.id}`
+  );
+  return `${events.length} conflict(s):\n${lines.join("\n")}`;
 }

@@ -68,3 +68,24 @@ export const deleteEventShape = {
   id: z.string(),
   span: z.enum(["this", "future", "all"]).optional(),
 };
+
+export const findFreeSlotsShape = {
+  start: z.string().describe("ISO 8601 начало диапазона поиска"),
+  end: z.string().describe("ISO 8601 конец диапазона поиска"),
+  durationMinutes: z
+    .number()
+    .int()
+    .positive()
+    .describe("Длительность слота в минутах"),
+  calendarIds: z.array(z.string()).optional(),
+};
+
+export const checkConflictsShape = {
+  start: z.string().describe("ISO 8601 начало интервала"),
+  end: z.string().describe("ISO 8601 конец интервала"),
+  calendarIds: z.array(z.string()).optional(),
+  excludeEventId: z
+    .string()
+    .optional()
+    .describe("ID события, которое исключить из проверки"),
+};
